@@ -1,0 +1,37 @@
+name: Windows EXE 빌드
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # 수동 실행 버튼 활성화
+
+jobs:
+  build:
+    runs-on: windows-latest   # Windows 서버에서 실행
+
+    steps:
+      - name: 코드 내려받기
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 필요 패키지 설치
+        run: pip install pyinstaller openpyxl pandas
+
+      - name: EXE 빌드
+        run: |
+          pyinstaller --onefile `
+                      --windowed `
+                      --name "세출예산_성질별_분류" `
+                      --add-data "세출_성질별_분류.py;." `
+                      main.py
+
+      - name: 빌드 결과 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: 세출예산_성질별_분류_EXE
+          path: dist/세출예산_성질별_분류.exe
+          retention-days: 30
